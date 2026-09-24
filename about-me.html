@@ -13,21 +13,24 @@
     />
     <style>
       body {
-        background-color: #006644;
+        /* background-color: #006644; */
         font-family: Arial, Helvetica, sans-serif;
       }
       h1 {
         background-color: rgb(0, 255, 100);
         color: red;
         font-family: "Roboto Mono", monospace;
+        padding:20px;
+        border: 3px black solid;
+        margin: 30px;
       }
 
       /* div.red-color {
         background-color: rgb(0, 255, 100);
         color: red;
       } */
-      p {
-        /* background-color: yellow; */
+      .intro {
+        background-color: yellow;
       }
       h1 {
         color: blue;
@@ -43,6 +46,9 @@
       input:focus {
         border-color: blue;
       }
+      p{
+        background-color: orange;
+      }
     </style>
     <!-- <link rel="stylesheet" href="/css/styles.css"> -->
   </head>
@@ -54,18 +60,19 @@
         Hi, I'm Zhi Li, a student in OIM3690 at
         <a href="https://www.babson.edu/">Babson College</a>. I enjoy building
         things with code and learning new technologies along the way.
-        <img
+        <!-- <img
           src="/images/Messi.webp"
           width="200"
           alt="Messi"
           title="A picture of Messi"
-        />
+        /> -->
       </p>
+      <p class="intro">I'm also passionate about contributing to open-source projects and helping others learn programming.</p>
     </div>
 
     <p>Things I'm interested in:</p>
     <ol>
-      <li>Web development</li>
+      <li class="intro">Web development</li>
       <li>Machine learning</li>
       <li>Photography</li>
     </ol>
