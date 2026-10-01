@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rubik's Cube</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Rubik's Cube</h1>
+    <p class="hint">Drag a sticker to turn a layer · drag the background to rotate the view · keys U D L R F B (Shift = counter-clockwise)</p>
+
+    <div class="status">
+      <span>Moves: <strong id="moves">0</strong></span>
+      <span id="message" aria-live="polite"></span>
+    </div>
+
+    <div id="viewport" class="viewport">
+      <div id="scene" class="scene"></div>
+    </div>
+
+    <div class="controls">
+      <div id="move-buttons" class="move-buttons"></div>
+      <div class="actions">
+        <button id="scramble" type="button">Scramble</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="cube.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
