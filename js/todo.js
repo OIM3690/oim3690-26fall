@@ -30,6 +30,7 @@ function render() {
 
     const span = document.createElement('span');
     span.textContent = todo.text;
+    // span.textContent = `You have to finish ${todo.text}`;
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';

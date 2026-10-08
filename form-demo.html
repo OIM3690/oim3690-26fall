@@ -6,12 +6,16 @@
     <title>Document</title>
   </head>
   <body>
-    <form action="https://oim.zhili.dev/echo/view" method="POST">
+    <form action="https://oim.zhili.dev/echo/view" method="post">
       <label for="username">Name:</label>
       <input type="text" id="username" name="username" />
       <label for="password">Password:</label>
-      <input type="password" id="password" name="password"  />
-      <input type="email">
+      <input type="password" id="password" name="password" />
+
+      <label for="resume">Upload file:</label>
+      <input type="file" id="resume" name="resume" />
+
+      <!-- <input type="email"> -->
       <button type="submit">Submit</button>
     </form>
   </body>

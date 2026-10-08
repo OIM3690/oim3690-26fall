@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structured Data Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; }
+    th { background: #f0f0f0; }
+    label { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Structured Data Demo</h1>
+  <p>Data lives in <code>js/students-data.js</code>; <code>js/data-demo.js</code> filters, sorts and summarizes it.</p>
+
+  <label>Major: <select id="major"></select></label>
+  <label>Min GPA: <input id="minGpa" type="number" step="0.1" min="0" max="4" value="0"></label>
+
+  <div id="output"></div>
+
+  <h2>Summary</h2>
+  <ul id="summary"></ul>
+
+  <!-- Data file must load before the script that uses it -->
+  <script src="js/students-data.js"></script>
+  <script src="js/data-demo.js"></script>
+</body>
+</html>
