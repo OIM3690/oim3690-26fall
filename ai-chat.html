@@ -31,15 +31,24 @@
       return data.choices[0].message.content;
     }
 
-    document.querySelector('#askBtn').addEventListener('click', async () => {
+    const askBtn = document.querySelector('#askBtn');
+    askBtn.addEventListener('click', async () => {
       const prompt = document.querySelector('#prompt').value;
       const answerEl = document.querySelector('#answer');
+      // Turn the button off until the answer arrives, so a second click
+      // cannot send, and pay for, a second request.
+      askBtn.disabled = true;
       // A call takes a few seconds, so show something while you wait.
       answerEl.textContent = 'Thinking...';
       try {
+        // textContent shows the answer as plain text. innerHTML would run any
+        // HTML the model wrote.
         answerEl.textContent = await askAI(prompt);
       } catch (error) {
         answerEl.textContent = 'Error: ' + error.message;
+      } finally {
+        // finally runs whether the call worked or failed.
+        askBtn.disabled = false;
       }
     });
   </script>
