@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ask AI</title>
+</head>
+<body>
+  <h1>Ask AI</h1>
+  <textarea id="prompt" placeholder="Ask AI anything..."></textarea>
+  <button id="askBtn">Ask</button>
+  <p id="answer"></p>
+
+  <script>
+    // This page works only on your vercel.app link. Live Server and GitHub Pages
+    // cannot run the function in api/ask.js, so there the Ask button fails.
+
+    // Sends your prompt to your own function at /api/ask. The function adds the
+    // key and calls the model, so no key appears anywhere on this page.
+    async function askAI(prompt) {
+      const response = await fetch('/api/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+      const data = await response.json();
+      // The answer is the content of the first choice's message.
+      return data.choices[0].message.content;
+    }
+
+    document.querySelector('#askBtn').addEventListener('click', async () => {
+      const prompt = document.querySelector('#prompt').value;
+      const answerEl = document.querySelector('#answer');
+      // A call takes a few seconds, so show something while you wait.
+      answerEl.textContent = 'Thinking...';
+      try {
+        answerEl.textContent = await askAI(prompt);
+      } catch (error) {
+        answerEl.textContent = 'Error: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
