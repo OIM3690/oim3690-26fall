@@ -27,8 +27,10 @@
         throw new Error(`Request failed: ${response.status}`);
       }
       const data = await response.json();
-      // The answer is the content of the first choice's message.
-      return data.choices[0].message.content;
+      // A model that reasons first puts a reasoning item ahead of the answer,
+      // so find the item of type message, then read its text.
+      const message = data.output.find(item => item.type === 'message');
+      return message.content[0].text;
     }
 
     const askBtn = document.querySelector('#askBtn');
