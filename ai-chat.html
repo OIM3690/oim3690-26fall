@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JS Learning Buddy</title>
+  <!-- marked turns the model's markdown (like **bold** or ```code```) into
+       HTML. DOMPurify then strips anything unsafe before it is inserted, since
+       the reply is inserted with innerHTML, not textContent. -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -72,11 +77,48 @@
       border-bottom-left-radius: 4px;
     }
 
+    /* The bot's reply is rendered markdown, so style the HTML elements
+       marked.js produces (paragraphs, lists, inline code, code blocks, etc.)
+       instead of a single text node. */
+    .message.bot > :first-child {
+      margin-top: 0;
+    }
+
+    .message.bot > :last-child {
+      margin-bottom: 0;
+    }
+
+    .message.bot p {
+      margin: 0 0 8px;
+    }
+
+    .message.bot ul,
+    .message.bot ol {
+      margin: 0 0 8px;
+      padding-left: 22px;
+    }
+
     .message.bot code {
       background-color: #dde6ee;
       padding: 1px 5px;
       border-radius: 4px;
       font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    .message.bot pre {
+      background-color: #2c3e50;
+      color: #f4f6f8;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0 0 8px;
+    }
+
+    .message.bot pre code {
+      background-color: transparent;
+      padding: 0;
+      color: inherit;
     }
 
     .message.error {
@@ -186,7 +228,16 @@
     function addMessage(role, text) {
       const bubble = document.createElement('div');
       bubble.className = `message ${role}`;
-      bubble.textContent = text;
+      if (role === 'bot') {
+        // The model answers in markdown (lists, **bold**, code blocks, ...).
+        // marked turns that into HTML, and DOMPurify removes anything unsafe
+        // before it is inserted, so the markdown renders instead of showing
+        // the raw asterisks and backticks.
+        bubble.innerHTML = DOMPurify.sanitize(marked.parse(text));
+      } else {
+        // User input and our own status/error text are shown as-is.
+        bubble.textContent = text;
+      }
       chatWindow.append(bubble);
       chatWindow.scrollTop = chatWindow.scrollHeight;
       return bubble;
