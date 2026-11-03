@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Price Lookup</title>
+</head>
+<body>
+  <h1>Stock Price Lookup</h1>
+  <p>Enter a stock symbol (e.g. AAPL, MSFT, TSLA) to get its real-time price.</p>
+
+  <label for="symbol">Stock symbol:</label>
+  <input type="text" id="symbol" placeholder="AAPL" onkeydown="if (event.key === 'Enter') getQuote()">
+  <button type="button" onclick="getQuote()">Get price</button>
+
+  <div id="output" aria-live="polite"></div>
+
+  <script src="js/finnhub-api-demo.js"></script>
+</body>
+</html>
