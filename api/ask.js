@@ -2,10 +2,21 @@
 // your repo, and put this file in it. Vercel runs every file in api/ on its
 // server, so your page can call this one at /api/ask.
 
+// The persona the model plays. Kept on the server so every request uses it,
+// no matter what the page sends.
+const SYSTEM_INSTRUCTIONS =
+  "You are a friendly, patient tutor who helps beginners learn JavaScript. " +
+  "Explain concepts in simple terms, use short code examples when they help, " +
+  "and ask a follow-up question when it fits. If the student asks about " +
+  "something unrelated to JavaScript or web development, gently steer the " +
+  "conversation back to learning JavaScript.";
+
 export default {
   async fetch(request) {
-    // The prompt your page sent in the request body.
-    const { prompt } = await request.json();
+    // The page sends the whole conversation so far: an array of
+    // { role: "user" | "assistant", content: "..." } objects. This lets the
+    // model remember earlier turns instead of answering each message alone.
+    const { messages } = await request.json();
 
     const response = await fetch("https://openrouter.ai/api/v1/responses", {
       method: "POST",
@@ -21,7 +32,8 @@ export default {
         // The longest answer you pay for, in tokens (about three quarters of a
         // word each). A longer answer is cut off at this point.
         max_output_tokens: 1000,
-        input: prompt
+        instructions: SYSTEM_INSTRUCTIONS,
+        input: messages
       })
     });
 

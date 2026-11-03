@@ -3,25 +3,203 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ask AI</title>
+  <title>JS Learning Buddy</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f4f6f8;
+      color: #222;
+      line-height: 1.5;
+    }
+
+    .chat-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header h1 {
+      margin: 0 0 4px;
+      color: #2c3e50;
+      font-size: 1.6rem;
+    }
+
+    header p {
+      margin: 0 0 16px;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    #chatWindow {
+      flex: 1;
+      overflow-y: auto;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background-color: #4dabf7;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background-color: #eef3f7;
+      color: #222;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message.bot code {
+      background-color: #dde6ee;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    .message.error {
+      align-self: center;
+      background-color: #fdecea;
+      color: #c0392b;
+      border: 1px solid #f5b7b1;
+    }
+
+    .message.thinking {
+      align-self: flex-start;
+      background-color: #eef3f7;
+      color: #777;
+      font-style: italic;
+    }
+
+    form#chatForm {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    #prompt {
+      flex: 1;
+      resize: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccd3da;
+      font-family: inherit;
+      font-size: 1rem;
+      min-height: 44px;
+      max-height: 120px;
+    }
+
+    #prompt:focus {
+      outline: none;
+      border-color: #4dabf7;
+    }
+
+    button {
+      padding: 0 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2c3e50;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #1b2733;
+    }
+
+    button:disabled {
+      background-color: #a7b0b8;
+      cursor: not-allowed;
+    }
+
+    #clearBtn {
+      background-color: transparent;
+      color: #555;
+      border: 1px solid #ccd3da;
+      font-weight: normal;
+    }
+
+    #clearBtn:hover:not(:disabled) {
+      background-color: #eef3f7;
+    }
+  </style>
 </head>
 <body>
-  <h1>Ask AI</h1>
-  <textarea id="prompt" placeholder="Ask AI anything..."></textarea>
-  <button id="askBtn">Ask</button>
-  <p id="answer"></p>
+  <div class="chat-container">
+    <header>
+      <h1>JS Learning Buddy 🤖</h1>
+      <p>A chatbot tutor to help you learn JavaScript. Ask about syntax, concepts, or paste code you're stuck on.</p>
+    </header>
+
+    <div id="chatWindow" aria-live="polite"></div>
+
+    <form id="chatForm">
+      <textarea id="prompt" placeholder="Ask something about JavaScript..." rows="1" required></textarea>
+      <button type="submit" id="askBtn">Send</button>
+      <button type="button" id="clearBtn">Clear</button>
+    </form>
+  </div>
 
   <script>
     // This page works only on your vercel.app link. Live Server and GitHub Pages
-    // cannot run the function in api/ask.js, so there the Ask button fails.
+    // cannot run the function in api/ask.js, so there the Send button fails.
 
-    // Sends your prompt to your own function at /api/ask. The function adds the
-    // key and calls the model, so no key appears anywhere on this page.
-    async function askAI(prompt) {
+    const chatWindow = document.querySelector('#chatWindow');
+    const chatForm = document.querySelector('#chatForm');
+    const promptEl = document.querySelector('#prompt');
+    const askBtn = document.querySelector('#askBtn');
+    const clearBtn = document.querySelector('#clearBtn');
+
+    // The conversation so far, in the shape the Responses API expects:
+    // [{ role: "user", content: "..." }, { role: "assistant", content: "..." }, ...]
+    // Sending the whole history (not just the latest message) each time is
+    // what lets the bot remember earlier turns.
+    let history = [];
+
+    const GREETING = "Hi! I'm your JavaScript learning buddy. Ask me about " +
+      "variables, functions, loops, arrays, objects, or anything else " +
+      "JS-related, and I'll do my best to explain it clearly.";
+
+    function addMessage(role, text) {
+      const bubble = document.createElement('div');
+      bubble.className = `message ${role}`;
+      bubble.textContent = text;
+      chatWindow.append(bubble);
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+      return bubble;
+    }
+
+    // Sends the running conversation to your own function at /api/ask. The
+    // function adds the key and calls the model, so no key appears anywhere
+    // on this page.
+    async function askAI(messages) {
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
+        body: JSON.stringify({ messages })
       });
       if (!response.ok) {
         throw new Error(`Request failed: ${response.status}`);
@@ -33,26 +211,52 @@
       return message.content[0].text;
     }
 
-    const askBtn = document.querySelector('#askBtn');
-    askBtn.addEventListener('click', async () => {
-      const prompt = document.querySelector('#prompt').value;
-      const answerEl = document.querySelector('#answer');
-      // Turn the button off until the answer arrives, so a second click
+    chatForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const text = promptEl.value.trim();
+      if (!text) return;
+
+      addMessage('user', text);
+      history.push({ role: 'user', content: text });
+      promptEl.value = '';
+
+      // Turn the controls off until the answer arrives, so a second click
       // cannot send, and pay for, a second request.
       askBtn.disabled = true;
-      // A call takes a few seconds, so show something while you wait.
-      answerEl.textContent = 'Thinking...';
+      clearBtn.disabled = true;
+      const thinkingBubble = addMessage('thinking', 'Thinking...');
+
       try {
-        // textContent shows the answer as plain text. innerHTML would run any
-        // HTML the model wrote.
-        answerEl.textContent = await askAI(prompt);
+        const reply = await askAI(history);
+        thinkingBubble.remove();
+        addMessage('bot', reply);
+        history.push({ role: 'assistant', content: reply });
       } catch (error) {
-        answerEl.textContent = 'Error: ' + error.message;
+        thinkingBubble.remove();
+        addMessage('error', 'Error: ' + error.message);
       } finally {
         // finally runs whether the call worked or failed.
         askBtn.disabled = false;
+        clearBtn.disabled = false;
+        promptEl.focus();
       }
     });
+
+    // Enter sends the message; Shift+Enter adds a new line.
+    promptEl.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        chatForm.requestSubmit();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      history = [];
+      chatWindow.replaceChildren();
+      addMessage('bot', GREETING);
+    });
+
+    addMessage('bot', GREETING);
   </script>
 </body>
 </html>
