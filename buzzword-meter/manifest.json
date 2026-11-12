@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Buzzword Meter",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "matches": ["https://jobs.lever.co/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}

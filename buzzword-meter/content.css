@@ -1,0 +1,16 @@
+#buzzword-banner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 2147483647;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  background: #ffcc00;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
